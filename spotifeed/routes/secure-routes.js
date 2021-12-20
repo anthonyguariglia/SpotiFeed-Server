@@ -7,6 +7,7 @@ const Album = require('../model/album')
 
 
 const URL = require('../../config.js')
+
 router.get('/profile', (req, res, next) => {
 	res.json({
 		message: 'You made it to the secure route',
@@ -30,16 +31,20 @@ router.delete('/logout', (req, res, next) => {
 })
 
 // Create playlist
-router.post('/playlists', (req, res, next) =>  {
+router.post('/playlists/:name', (req, res, next) =>  {
 	try {
+		const name = req.params.name
+		console.log(name, store.artists)
 		Playlist.create({
-			name: req.body.name,
-			artists: store.artists,
+			name: name,
+			albums: store.albums,
+			owner: store.id
 		})
-		.then(playlist => {
-			res.status(201).json(playlist)
+		.then(() => {
+			console.log('successfully created playlist')
+			
 		})
-		.catch(next())
+		res.status(201).json(req.params.name)
 	} catch(error) {
 		next(error)
 	}
@@ -59,46 +64,80 @@ router.delete('/playlists/:name', (req, res, next) => {
 	}
 })
 
-// add finding name, fix inner data
 // Add album to playlist
 router.post('/playlists/:name/albums/:id', (req, res, next) => {
 	try {
-		const albums = store.albums
-		Album.find({ id: req.params.id })
-			.then((album) => {
-				const albumId = album._id
+		const paramId = req.params.id
+		const paramName = req.params.name
+		let albumId
+		let albumIndex
+		let albums
+		Playlist.find({ name: req.params.name })
+			.then((playlist) => {
+				albums = playlist[0].albums
+				console.log(albums)
 			})
-			.then(
-				Playlist.find({ name: req.body.name }).then((playlist) => {
-					playlist[albums].push(albumId)
-					return playlist.save()
+			.then(() => {
+				Album.find({ id: paramId }).then((album) => {
+					albumId = album[0]._id
+					albumIndex = albums.indexOf(albumId)
+					if (albumIndex > -1) {
+						res.status(409).json('album is already in playlist')
+					} else {
+						Album.find({ id: paramId })
+							.then((album) => {
+								albumId = album[0]._id
+							})
+							.then(() => {
+								store.albums.push(albumId)
+								Playlist.find({ name: paramName })
+									.then((playlist) => {
+										playlist[0].albums.push(albumId)
+										return playlist[0].save()
+									})
+									.then((playlist) => {
+										console.log(playlist)
+										res.status(201).json('successfully added')
+									})
+							})
+					}
 				})
-			)
-			.then(res.status(201).json())
-			.catch(next())
+			})
+
 	} catch (error) {
 		next(error)
 	}
 })
 
 // remove album from playlist
-router.patch('/playlists/:name/albums/:id', (req, res, next) => {
+router.patch('/playlists/:name/albums/:id', async (req, res, next) => {
 	try {
-		const albums = store.albums
-		Album.find({ id: req.params.id })
-			.then((album) => {
-				const albumId = album._id
-				const deletedIndex = albums.indexOf(albumId)
+		let albumId
+		let deletedIndex
+		let albums 
+		Playlist.find({ name: req.params.name })
+			.then((playlist) => {
+				albums = playlist[0].albums
+				console.log(albums)
 			})
-			.then(
-				Playlist.find({ name: req.body.name })
-					.then((playlist) => {
-						playlist[albums].splice(deletedIndex, 1)
-						return playlist.save()
+			.then(() => {
+				Album.find({ id: req.params.id })
+					.then((album) => {
+						albumId = album[0]._id
+						deletedIndex = albums.indexOf(albumId)
 					})
-			)
-			.then(res.status(201).json())
-			.catch(next())
+					.then(() => {
+						console.log('index to be deleted: ', deletedIndex)
+						Playlist.find({ name: req.params.name }).then((playlist) => {
+							playlist[0].albums.splice(deletedIndex, 1)
+							return playlist[0].save()
+						})
+					})
+					.then((playlist) => {
+						console.log(playlist)
+					})
+			})
+			res.status(201).json()
 	} catch (error) {
 		next(error)
 	}
@@ -107,12 +146,14 @@ router.patch('/playlists/:name/albums/:id', (req, res, next) => {
 // Display playlist data
 router.get('/playlists/:name', (req, res, next) => {
 	try {
+		let playlistData
 		Playlist.find({ name: req.params.name })
 			.populate('albums')
 			.then((playlist) => {
-				res.status(200).json(playlist)
+				console.log(playlist[0])
+				playlistData = playlist[0]
 			})
-			.catch(next())
+			.then(() => res.status(200).json(playlistData))
 	} catch(error) {
 		next(error)
 	}
