@@ -1,0 +1,29 @@
+{
+  "name": "spotifeed",
+  "version": "1.0.0",
+  "description": "See recent uploads from artists you follow",
+  "main": "server.js",
+  "scripts": {
+    "server": "nodemon spotifeed/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tony Guariglia",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "bcrypt": "^4.0.1",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "fetch": "^1.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^4.2.2",
+    "mongoose": "^5.9.15",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "request": "^2.88.2"
+  }
+}
