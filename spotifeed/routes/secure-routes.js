@@ -159,4 +159,20 @@ router.get('/playlists/:name', (req, res, next) => {
 	}
 })
 
+// Display all playlists
+router.get('/playlists', (req, res, next) => {
+	try{
+		let playlistData
+		Playlist.find({ owner: store.id})
+			.populate('owner')
+			.populate('artists')
+			.then(playlists => {
+				playlistData = playlists
+			})
+			.then(() => res.status(200).json(playlistData))
+	} catch(error) {
+		next(error)
+	}
+})
+
 module.exports = router
