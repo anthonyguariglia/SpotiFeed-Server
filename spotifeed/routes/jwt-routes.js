@@ -9,7 +9,7 @@ const axios = require('axios')
 const $ = require('jquery')
 const cors = require('cors')
 
-const errors = require('..custom_errors/lib/custom_errors')
+// const errors = require('../lib/custom_errors')
 // const BadParamsError = errors.BadParamsError
 
 
