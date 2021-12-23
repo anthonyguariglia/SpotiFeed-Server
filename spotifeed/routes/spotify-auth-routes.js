@@ -38,8 +38,9 @@ router.use(express.static(__dirname + '/../../public'))
 
 router.get('/loginSpotify', function (req, res) {
   try {
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:7165");
-    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    // res.setHeader("Access-Control-Allow-Origin", "http://localhost:7165");
+    // res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.status(201)
     console.log('in loginSpotify')
     var state = generateRandomString(16)
     res.cookie(stateKey, state)
@@ -56,6 +57,7 @@ router.get('/loginSpotify', function (req, res) {
         })
     )
     console.log('done redirecting')
+
   } catch(error) {
     console.log(error)
   }

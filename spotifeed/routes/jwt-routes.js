@@ -10,7 +10,7 @@ const $ = require('jquery')
 const cors = require('cors')
 
 const errors = require('../../lib/custom_errors')
-
+const BadParamsError = errors.BadParamsError
 
 
 router
@@ -18,15 +18,17 @@ router
 	.use(cors())
 
 router.post('/signup',
-  // function() {},
+  async (req, res, next) => {
+    // console.log('made it here at least', req.body)
+    if (!req.body.confirm_password || req.body.password !== req.body.confirm_password) {
+      // console.log(req.body)
+      res.status(400).json('passwords do not match')
+    }
+	},
 	passport.authenticate('signup', { session: false }),
 	async (req, res, next) => {
     try{ 
-      // console.log('made it here at least', req.user)
-      // if (!req.user.confirm_password || req.user.password !== req.user.confirm_password) {
-      //   console.log(req.user)
-			// 	throw new BadParamsError()
-			// }
+      
       // User.create({
       //   email: req.user.email,
       //   password: req.user.password

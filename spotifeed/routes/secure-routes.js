@@ -1,9 +1,11 @@
+'use strict'
 const express = require('express')
 const router = express.Router()
 const store = require('../../store')
 const Playlist = require('../model/playlist')
 const Artist = require('../model/artist')
 const Album = require('../model/album')
+const User = require('../model/user-model')
 
 
 const URL = require('../../config.js')
@@ -148,7 +150,7 @@ router.get('/playlists/:name', (req, res, next) => {
 	try {
 		let playlistData
 		Playlist.find({ name: req.params.name })
-			.populate('albums')
+			// .populate('albums')
 			.then((playlist) => {
 				console.log(playlist[0])
 				playlistData = playlist[0]
@@ -163,13 +165,33 @@ router.get('/playlists/:name', (req, res, next) => {
 router.get('/playlists', (req, res, next) => {
 	try{
 		let playlistData
-		Playlist.find({ owner: store.id})
+		Playlist.find({ owner: store.id })
 			.populate('owner')
 			.populate('artists')
 			.then(playlists => {
 				playlistData = playlists
 			})
 			.then(() => res.status(200).json(playlistData))
+	} catch(error) {
+		next(error)
+	}
+})
+
+// Return user's followed artists
+router.get('/artists', function (req, res, next) {
+	try {
+		console.log(req.user.email)
+		const email = req.user.email
+		 let artistData = []
+		 User.find({ email: email })
+				.populate('artists')
+				.then((user) => {
+					user[0].artists.forEach((artist) => {
+						// console.log(artist.name)
+						artistData.push(artist.name)
+					})
+				})
+				.then(() => res.status(200).json(artistData))
 	} catch(error) {
 		next(error)
 	}

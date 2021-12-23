@@ -40,6 +40,8 @@ router.get('/get-data', async (req, res, next) => {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
 				Authorization: 'Bearer ' + store.access_token,
+				'Access-Control-Allow-Methods': 'GET, OPTIONS',
+				'Access-Control-Allow-Origin': 'http://localhost:7165',
 			},
 		})
 
@@ -102,10 +104,7 @@ router.get('/get-data', async (req, res, next) => {
       }
       
     }))
-    // console.log(artistArray)
-    // User.findById(store.id, async (err, data) => {
-    //     await User.updateOne({ artists: artistArray })
-    //   })
+
     // code here will now execute with the `artist` object populated
     await Promise.all(artistData.map(async (artistFollowed) => {
 			let singles = []
@@ -138,6 +137,7 @@ router.get('/get-data', async (req, res, next) => {
           }
           albumArray.push(single)
         } catch(error) {
+          console.log(error)
           next(error)
         }
 			})
@@ -147,8 +147,6 @@ router.get('/get-data', async (req, res, next) => {
 
     let sortedAlbumsByDate = []
     let sortedAlbumsId = []
-    
-    console.log(typeof store.id)//artistArray)
 
     sortedAlbumsByDate = albumArray.sort((a, b) => new Date(b.release_date) - new Date(a.release_date))
     
@@ -182,7 +180,7 @@ router.get('/get-data', async (req, res, next) => {
 
     User.findById(store.id, async (err, user) => {
       try {
-        console.log('in the callback')
+        console.log('in the callback', user)
         if (user !== null) {
           console.log(user, artistArray)
           user['artists'] = artistArray
@@ -191,16 +189,12 @@ router.get('/get-data', async (req, res, next) => {
         } else if (err) {
           console.log(err)
         } else {
-          console.log('an error has occurred adding artists to user')
+          console.log(err, 'an error has occurred adding artists to user')
         }
       } catch(error) {
         next(error)
       }
 		})
-
-    // RecentUploads.create()
-
-    // RecentUploads.insertMany(sortedAlbumsByDate)
 
     res.status(201).json(sortedAlbumsByDate)
     next()

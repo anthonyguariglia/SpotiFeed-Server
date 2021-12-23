@@ -24,13 +24,17 @@ const app = express()
 
 
 
-const clientDevPort = 7165
+// const clientDevPort = 7165
 
-app.use(
-	cors({
-		origin: process.env.CLIENT_ORIGIN || `http://localhost:${clientDevPort}`,
-	})
-)
+// app.use(
+// 	cors({
+// 		origin: process.env.CLIENT_ORIGIN || `http://localhost:${clientDevPort}`,
+// 	})
+// )
+app.use((req, res, next) => {
+	res.header('Access-Control-Allow-Origin', '*')
+	next()
+})
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(jwtRoutes)
 app.use(spotifyApiRoutes)
