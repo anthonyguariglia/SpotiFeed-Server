@@ -6,14 +6,14 @@ const querystring = require('querystring')
 const store = require('../../store')
 require('dotenv').config()
 const { Http, HttpRequestOptions, Method } = require('node-https')
-const { apiURL } = require('../../config')
+const apiURL = require('../../config')
 
 const http = new Http()
 
 const router = express.Router()
 
 // client specific information - NEEDS UPDATING
-const redirect_uri = apiURL.apiURL + '/callback'
+const redirect_uri = apiURL.apiUrl + '/callback'
 const client_id = process.env.CLIENT_ID //
 const client_secret = process.env.CLIENT_SECRET //
 const stateKey = 'spotify_auth_state'
