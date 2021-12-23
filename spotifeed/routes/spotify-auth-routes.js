@@ -5,6 +5,9 @@ const cookieParser = require('cookie-parser')
 const querystring = require('querystring')
 const store = require('../../store')
 require('dotenv').config()
+const { Http, HttpRequestOptions, Method } = require('node-https')
+
+const http = new Http()
 
 const router = express.Router()
 
@@ -29,27 +32,33 @@ const generateRandomString = function (length) {
 	return text
 }
 
-router.use(express.static(__dirname + '/../public'))
+router.use(express.static(__dirname + '/../../public'))
 	.use(cors())
 	.use(cookieParser())
 
 router.get('/loginSpotify', function (req, res) {
-	console.log('in loginSpotify')
-	var state = generateRandomString(16)
-	res.cookie(stateKey, state)
-	var scope = 'user-follow-read '
-	console.log('redirecting..')
-	res.redirect(
-		'https://accounts.spotify.com/authorize?' +
-			querystring.stringify({
-				response_type: 'code',
-				client_id: client_id,
-				scope: scope,
-				redirect_uri: redirect_uri,
-				state: state,
-			})
-	)
-	console.log('done redirecting')
+  try {
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:7165");
+    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    console.log('in loginSpotify')
+    var state = generateRandomString(16)
+    res.cookie(stateKey, state)
+    var scope = 'user-follow-read'
+    console.log('redirecting..')
+    res.redirect(
+      'https://accounts.spotify.com/authorize?' +
+        querystring.stringify({
+          response_type: 'code',
+          client_id: client_id,
+          scope: scope,
+          redirect_uri: redirect_uri,
+          state: state,
+        })
+    )
+    console.log('done redirecting')
+  } catch(error) {
+    console.log(error)
+  }
 })
 
 router.get('/callback', function (req, res) {
@@ -81,6 +90,7 @@ router.get('/callback', function (req, res) {
 				Authorization:
 					'Basic ' +
 					new Buffer(client_id + ':' + client_secret).toString('base64'),
+				'Access-Control-Allow-Origin': 'http://localhost:7165',
 			},
 			json: true,
 		}
@@ -95,7 +105,9 @@ router.get('/callback', function (req, res) {
 
 				var options = {
 					url: 'https://api.spotify.com/v1/me',
-					headers: { Authorization: 'Bearer ' + access_token },
+					headers: {
+						Authorization: 'Bearer ' + access_token,
+					},
 					json: true,
 				}
 

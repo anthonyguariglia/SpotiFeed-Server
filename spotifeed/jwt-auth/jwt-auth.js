@@ -1,3 +1,5 @@
+'use strict'
+
 const passport = require('passport')
 const localStrategy = require('passport-local').Strategy
 const UserModel = require('../model/user-model')
@@ -11,7 +13,6 @@ passport.use('signup',
     async (email, password, done) => {
       try {
         const user = await UserModel.create({ email, password });
-
         return done(null, user);
       } catch (error) {
         done(error);
@@ -20,7 +21,8 @@ passport.use('signup',
   )
 )
 
-passport.use('login',
+passport.use(
+	'login',
 	new localStrategy(
 		{
 			usernameField: 'email',
@@ -33,7 +35,7 @@ passport.use('login',
 				if (!user) {
 					return done(null, false, { message: 'User not found' })
 				}
-				
+
 				const validate = await user.isValidPassword(password)
 
 				if (!validate) {

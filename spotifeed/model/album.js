@@ -29,6 +29,19 @@ const albumSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
+  images: [
+    {
+      height: {
+        type: Number
+      },
+      url: {
+        type: String
+      },
+      width: {
+        type: String
+      }
+    }
+  ]
 },
 {
   toJSON: { virtuals: true }

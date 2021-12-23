@@ -1,3 +1,4 @@
+'use strict'
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt')
 
@@ -7,8 +8,7 @@ const UserSchema = new Schema(
 	{
 		email: {
 			type: String,
-			required: true,
-			unique: true,
+			required: true
 		},
 		password: {
 			type: String,
@@ -29,16 +29,18 @@ const UserSchema = new Schema(
 	}
 )
 
-UserSchema.pre('save', async function (next) {
+UserSchema.pre('save', async function (req, res, next) {
 	const user = this
-	const hash = await bcrypt.hash(this.password, 10)
+  console.log(this, req)
+	// const hash = await bcrypt.hash(this.password, 10)
 
-	this.password = hash
+	// this.password = hash
 	next()
 })
 
 UserSchema.methods.isValidPassword = async function (password) {
 	const user = this
+  console.log(password, user.password)
 	const compare = await bcrypt.compare(password, user.password)
 
 	return compare
