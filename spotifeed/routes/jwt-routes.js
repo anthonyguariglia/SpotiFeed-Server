@@ -23,6 +23,8 @@ router.post('/signup',
     if (!req.body.confirm_password || req.body.password !== req.body.confirm_password) {
       // console.log(req.body)
       res.status(400).json('passwords do not match')
+    } else {
+      next()
     }
 	},
 	passport.authenticate('signup', { session: false }),

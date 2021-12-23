@@ -20,15 +20,15 @@ router.get('/profile', (req, res, next) => {
 
 router.delete('/logout', (req, res, next) => {
 	console.log(req.user)
-	req.logout(req.user, { session: false }, async (error) => {
-		if (error) return next(error)
-	})
-	req.query.secret_token = null
+	console.log(store.id)
+	store.id = ''
+	// req.query.secret_token = null
 	console.log(req.user)
 	res.json({
 		message: 'signed out successfully',
 		user: req.user,
-		token: req.query.secret_token,
+		id: store.id,
+		// token: req.query.secret_token,
 	})
 })
 
@@ -71,30 +71,46 @@ router.post('/playlists/:name/albums/:id', (req, res, next) => {
 	try {
 		const paramId = req.params.id
 		const paramName = req.params.name
-		let albumId
-		let albumIndex
+		let albumIds = []
+		let albumIndex = -1
 		let albums
+		let albumName
+		let albumInPlaylist
 		Playlist.find({ name: req.params.name })
 			.then((playlist) => {
+				// console.log(playlist)
 				albums = playlist[0].albums
-				console.log(albums)
+				albums.forEach(album => {
+					albumIds.push(album.id)
+				})
+				console.log(albumIds)
 			})
 			.then(() => {
 				Album.find({ id: paramId }).then((album) => {
-					albumId = album[0]._id
-					albumIndex = albums.indexOf(albumId)
+					// console.log(album)
+					if (album[0]) {
+						// console.log(album[0])
+						const albumId = album[0].id
+						albumIndex = albumIds.indexOf(albumId)
+					}
+					// console.log(albums, albumName)
+					console.log(albumIndex)
 					if (albumIndex > -1) {
 						res.status(409).json('album is already in playlist')
 					} else {
+						// console.log(albumName, paramId)
 						Album.find({ id: paramId })
 							.then((album) => {
-								albumId = album[0]._id
+								// console.log(album)
+								albumName = album[0].name
+								albumInPlaylist = album[0]
 							})
 							.then(() => {
-								store.albums.push(albumId)
+								store.albums.push(albumInPlaylist)
 								Playlist.find({ name: paramName })
 									.then((playlist) => {
-										playlist[0].albums.push(albumId)
+										// console.log(albumInPlaylist)
+										playlist[0].albums.push(albumInPlaylist)
 										return playlist[0].save()
 									})
 									.then((playlist) => {
@@ -112,36 +128,45 @@ router.post('/playlists/:name/albums/:id', (req, res, next) => {
 })
 
 // remove album from playlist
-router.patch('/playlists/:name/albums/:id', async (req, res, next) => {
+router.patch('/playlists/:name/albums/:albumName', async (req, res, next) => {
 	try {
-		let albumId
+		let albumIds = []
+		let albumName
 		let deletedIndex
 		let albums 
 		Playlist.find({ name: req.params.name })
 			.then((playlist) => {
-				albums = playlist[0].albums
-				console.log(albums)
+				if (playlist[0]) {
+					albums = playlist[0].albums
+					albums.forEach(album => {
+						albumIds.push(album.id)
+					})
+					console.log(albumIds)
+				}
 			})
 			.then(() => {
-				Album.find({ id: req.params.id })
+				Album.find({ name: req.params.albumName })
 					.then((album) => {
-						albumId = album[0]._id
-						deletedIndex = albums.indexOf(albumId)
+						const albumId = album[0].id
+						deletedIndex = albumIds.indexOf(albumId)
 					})
 					.then(() => {
-						console.log('index to be deleted: ', deletedIndex)
+						console.log(deletedIndex)
+						if (deletedIndex === -1) {
+							return console.log('album is not in playlist')
+						} else {
 						Playlist.find({ name: req.params.name }).then((playlist) => {
 							playlist[0].albums.splice(deletedIndex, 1)
 							return playlist[0].save()
 						})
-					})
+					}})
 					.then((playlist) => {
 						console.log(playlist)
 					})
 			})
 			res.status(201).json()
 	} catch (error) {
-		next(error)
+		return error
 	}
 })
 
@@ -167,7 +192,7 @@ router.get('/playlists', (req, res, next) => {
 		let playlistData
 		Playlist.find({ owner: store.id })
 			.populate('owner')
-			.populate('artists')
+			.populate('albums')
 			.then(playlists => {
 				playlistData = playlists
 			})
