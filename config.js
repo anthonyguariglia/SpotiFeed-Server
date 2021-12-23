@@ -4,7 +4,7 @@ const apiUrls = {
 	development: 'http://localhost:3000',
 }
 
-if (window.location.hostname === 'localhost') {
+if (0) {//window.location.hostname === 'localhost') {
 	apiUrl = apiUrls.development
 } else {
 	apiUrl = apiUrls.production
