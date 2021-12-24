@@ -39,7 +39,7 @@ router.post('/playlists/:name', (req, res, next) =>  {
 		console.log(name, store.artists)
 		Playlist.create({
 			name: name,
-			albums: store.albums,
+			// albums: store.albums,
 			owner: store.id
 		})
 		.then(() => {
@@ -55,14 +55,23 @@ router.post('/playlists/:name', (req, res, next) =>  {
 // Delete playlist
 router.delete('/playlists/:name', (req, res, next) => {
 	try {
+		// console.log(req.params.name)
+		let name
 		Playlist.find({ name: req.params.name })
 			.then((playlist) => {
-				playlist.deleteOne()
-			})
-			.then(res.status(204))
-			.catch(next())
+				console.log(playlist)
+				if (playlist[0]) {
+					name = playlist[0].name
+					playlist[0].deleteOne()
+				} else {
+					res.status(404)
+				}
+				res.json(`${name}`)
+				}
+			)
 	} catch(error) {
-		next(error)
+		console.log(error)
+		next()
 	}
 })
 
