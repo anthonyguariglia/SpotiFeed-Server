@@ -46,9 +46,11 @@ router.get('/get-data', async (req, res, next) => {
 		})
 
     // obtain data for artists followed by this user
-		const response = await axiosInstance.get('/me/following?type=artist')
+		const response = await axiosInstance.get(
+			'/me/following?type=artist&limit=50'
+		)
     const artistData = response.data.artists.items
-    
+    console.log(artistData)
     // let artists = []
     let albumArray = []
     let artistArray = []
