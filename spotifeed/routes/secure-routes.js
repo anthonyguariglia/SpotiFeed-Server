@@ -36,7 +36,7 @@ router.delete('/logout', (req, res, next) => {
 router.post('/playlists/:name', (req, res, next) =>  {
 	try {
 		const name = req.params.name
-		console.log(name, store.artists)
+		console.log(name)
 		Playlist.create({
 			name: name,
 			// albums: store.albums,
@@ -55,7 +55,7 @@ router.post('/playlists/:name', (req, res, next) =>  {
 // Delete playlist
 router.delete('/playlists/:name', (req, res, next) => {
 	try {
-		// console.log(req.params.name)
+		console.log(req.params.name)
 		let name
 		Playlist.find({ name: req.params.name })
 			.then((playlist) => {
@@ -143,6 +143,7 @@ router.patch('/playlists/:name/albums/:albumName', async (req, res, next) => {
 		let albumName
 		let deletedIndex
 		let albums 
+		console.log(req.params)
 		Playlist.find({ name: req.params.name })
 			.then((playlist) => {
 				if (playlist[0]) {
@@ -156,8 +157,17 @@ router.patch('/playlists/:name/albums/:albumName', async (req, res, next) => {
 			.then(() => {
 				Album.find({ name: req.params.albumName })
 					.then((album) => {
-						const albumId = album[0].id
-						deletedIndex = albumIds.indexOf(albumId)
+						console.log(album)
+						if (album.length > 1) {
+							album.forEach(track => {
+								if (albumIds.indexOf(track.id) > -1) {
+									deletedIndex = albumIds.indexOf(track.id)
+								}
+							})
+						} else {
+							const albumId = album[0].id
+							deletedIndex = albumIds.indexOf(albumId)
+						}
 					})
 					.then(() => {
 						console.log(deletedIndex)
@@ -173,7 +183,8 @@ router.patch('/playlists/:name/albums/:albumName', async (req, res, next) => {
 						console.log(playlist)
 					})
 			})
-			res.status(201).json()
+			const id = `${req.params.name}-${req.params.albumName}`
+			res.status(201).json(id)
 	} catch (error) {
 		return error
 	}
