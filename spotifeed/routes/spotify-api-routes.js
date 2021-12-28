@@ -54,7 +54,7 @@ router.get('/get-data', async (req, res, next) => {
     let artistArray = []
 
     await Promise.all(artistData.map(async (artistFollowed) => {
-      
+      // console.log(artistFollowed.name)
       let albums = []
       // obtain latest 2 artist albums from spotify api, albums only
       const albumData = await axiosInstance.get(
@@ -94,13 +94,12 @@ router.get('/get-data', async (req, res, next) => {
           id: artistFollowed.id,
         }).then(artist => {
           if (artist) {
-            // console.log(artist._id)
             artistArray.push(artist._id)
             // console.log(artistArray)
           }
         })
-      } catch(error) {
-        next(error)
+      } catch {
+        next()
       }
       
     }))
@@ -177,30 +176,28 @@ router.get('/get-data', async (req, res, next) => {
       owner: store.id
     })
 
-
     User.findById(store.id, async (err, user) => {
       try {
-        console.log('in the callback', user)
+        
         if (user !== null) {
-          console.log(user, artistArray)
+          // console.log(user, artistArray)
           user['artists'] = artistArray
-          console.log(user)
+          // console.log(user)
           return user.save()
         } else if (err) {
           console.log(err)
         } else {
           console.log(err, 'an error has occurred adding artists to user')
         }
-      } catch(error) {
-        next(error)
+      } catch {
+        next()
       }
 		})
 
     res.status(201).json(sortedAlbumsByDate)
-    next()
 		// process your data and send back to the user
-	} catch (error) {
-    (next(error))
+	} catch {
+    next()
 		// handle if you got an error
 	}
 })

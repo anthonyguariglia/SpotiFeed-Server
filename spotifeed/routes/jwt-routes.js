@@ -8,14 +8,38 @@ const { apiUrl } = require('../../config')
 const axios = require('axios')
 const $ = require('jquery')
 const cors = require('cors')
+const cookieParser = require('cookie-parser')
+const querystring = require('querystring')
+require('dotenv').config()
 
 // const errors = require('../lib/custom_errors')
 // const BadParamsError = errors.BadParamsError
 
+//testing
+const redirect_uri = apiUrl + '/callback'
+const client_id = process.env.CLIENT_ID //
+const client_secret = process.env.CLIENT_SECRET //
+const stateKey = 'spotify_auth_state'
+const generateRandomString = function (length) {
+	let text = ''
+	const possible =
+		'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+
+	for (var i = 0; i < length; i++) {
+		text += possible.charAt(Math.floor(Math.random() * possible.length))
+	}
+	return text
+}
 
 router
-	.use(express.static(__dirname + '../../public'))
+	.use(express.static(__dirname + '/../../public'))
 	.use(cors())
+	.use(cookieParser())
+
+
+// router
+// 	.use(express.static(__dirname + '../../public'))
+// 	.use(cors())
 
 router.post('/signup',
   async (req, res, next) => {
@@ -61,17 +85,20 @@ router.post('/login', async (req, res, next) => {
 				const body = { _id: user._id, email: user.email }
 				const token = jwt.sign({ user: body }, 'TOP_SECRET')
 
-	      store.id = req.user._id
-
-        // console.log(response)
+				store.id = req.user._id
+				
 				return res.json({ token })
 			})
+      //------------//
       
+
+      
+      //------------//
       // console.log(response)
 
-		} catch (error) {
+		} catch {
       console.log(error)
-			return next(error)
+			return next()
 		}
 	})(req, res, next)
 })
