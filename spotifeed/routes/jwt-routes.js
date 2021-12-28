@@ -91,4 +91,34 @@ router.get('/users', (req, res, next) => {
 	})(req, res, next)
 })
 
+// Change Password
+router.post('/change-password', (req, res, next) => {
+		// console.log('made it here at least', req.body)
+  if (
+    !req.body.confirm_new_password ||
+    !req.body.new_password ||
+    req.body.new_password !== req.body.confirm_new_password
+  ) {
+    // console.log(req.body)
+    res.status(400).json('passwords do not match')
+  } else {
+    passport.authenticate('change-password', async (err, user, info) => {
+      try {
+        console.log('in here')
+        if (err || !user) {
+          const error = new Error('An error occurred.')
+          console.log(error)
+          return next(error)
+        }
+        user.password = req.body.new_password
+        res.json('password successfully changed')
+        return user.save()
+        
+      } catch (error) {
+        return 'res.status(400)'
+      }
+    })(req, res, next)
+  }
+})
+
 module.exports = router
