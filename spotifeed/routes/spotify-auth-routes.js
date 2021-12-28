@@ -6,15 +6,17 @@ const querystring = require('querystring')
 const store = require('../../store')
 require('dotenv').config()
 const { Http, HttpRequestOptions, Method } = require('node-https')
-const apiURL = require('../../config')
 const axios = require('axios')
 
 const http = new Http()
 
 const router = express.Router()
 
+const production = 1;
+const apiUrl = production ? 'https://pure-harbor-08948.herokuapp.com' : 'http://localhost:3000'
+
 // client specific information - NEEDS UPDATING
-const redirect_uri = apiURL.apiUrl + '/callback'
+const redirect_uri = apiUrl + '/callback'
 const client_id = process.env.CLIENT_ID //
 const client_secret = process.env.CLIENT_SECRET //
 const stateKey = 'spotify_auth_state'

@@ -8,7 +8,6 @@ const Album = require('../model/album')
 const User = require('../model/user-model')
 
 
-const URL = require('../../config.js')
 
 router.get('/profile', (req, res, next) => {
 	res.json({

@@ -4,32 +4,14 @@ const jwt = require('jsonwebtoken')
 const router = express.Router()
 const User = require('../model/user-model')
 const store = require('../../store')
-const { apiUrl } = require('../../config')
 const axios = require('axios')
 const $ = require('jquery')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const querystring = require('querystring')
 require('dotenv').config()
 
 // const errors = require('../lib/custom_errors')
 // const BadParamsError = errors.BadParamsError
-
-//testing
-const redirect_uri = apiUrl + '/callback'
-const client_id = process.env.CLIENT_ID //
-const client_secret = process.env.CLIENT_SECRET //
-const stateKey = 'spotify_auth_state'
-const generateRandomString = function (length) {
-	let text = ''
-	const possible =
-		'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-
-	for (var i = 0; i < length; i++) {
-		text += possible.charAt(Math.floor(Math.random() * possible.length))
-	}
-	return text
-}
 
 router
 	.use(express.static(__dirname + '/../../public'))
