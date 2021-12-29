@@ -10,81 +10,69 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 require('dotenv').config()
 
-// const errors = require('../lib/custom_errors')
-// const BadParamsError = errors.BadParamsError
-
+// add cors and cookie support
 router
 	.use(express.static(__dirname + '/../../public'))
 	.use(cors())
 	.use(cookieParser())
 
-
-// router
-// 	.use(express.static(__dirname + '../../public'))
-// 	.use(cors())
-
+// on sign up
 router.post('/signup',
   async (req, res, next) => {
-    // console.log('made it here at least', req.body)
+    // check if passwords match
     if (!req.body.confirm_password || req.body.password !== req.body.confirm_password) {
-      // console.log(req.body)
       res.status(400).json('passwords do not match')
     } else {
       next()
     }
 	},
+  // authenticate login info
 	passport.authenticate('signup', { session: false }),
 	async (req, res, next) => {
     try{ 
       
-      // User.create({
-      //   email: req.user.email,
-      //   password: req.user.password
-      // })
+      // report status upon successful authentication
       res.json({
         message: 'Signup successful',
         user: req.user,
       })
-    } catch(error) {
-      next(error)
+    } catch {
+      next()
     }
 	}
 )
 
+// on log in
 router.post('/login', async (req, res, next) => {
+  // authenticate credentials
 	passport.authenticate('login', async (err, user, info) => {
 		try {
-      console.log(user)
+      // check if user exists
 			if (err || !user) {
 				const error = new Error('An error occurred.')
 
 				return next(error)
 			}
 
+      // log user in and note their mongoose id and email
 			req.login(user, { session: false }, async (error) => {
 				if (error) return next(error)
 
+        // assign a secret token to be used in authentication
 				const body = { _id: user._id, email: user.email }
 				const token = jwt.sign({ user: body }, 'TOP_SECRET')
 
+        // store user id locally to authenticate requests on front end
 				store.id = req.user._id
 				
 				return res.json({ token })
 			})
-      //------------//
-      
-
-      
-      //------------//
-      // console.log(response)
-
 		} catch {
-      console.log(error)
-			return next()
+			next()
 		}
 	})(req, res, next)
 })
-
+/*
 router.get('/users', (req, res, next) => {
 	passport.authenticate('login', async (err, user, info) => {
 		try {
@@ -99,32 +87,38 @@ router.get('/users', (req, res, next) => {
 		}
 	})(req, res, next)
 })
-
+*/
 // Change Password
 router.post('/change-password', (req, res, next) => {
-		// console.log('made it here at least', req.body)
+		// check if passwords match and are present
   if (
     !req.body.confirm_new_password ||
     !req.body.new_password ||
     req.body.new_password !== req.body.confirm_new_password
   ) {
-    // console.log(req.body)
+
     res.status(400).json('passwords do not match')
+
   } else {
+    // authenticate credentials once all information is present
     passport.authenticate('change-password', async (err, user, info) => {
       try {
-        console.log('in here')
+        // check if a user can be found
         if (err || !user) {
           const error = new Error('An error occurred.')
           console.log(error)
           return next(error)
         }
+
+        // once authenticated, assign user new password
         user.password = req.body.new_password
-        res.json('password successfully changed')
+        res.json('Password Changed Successfully')
+
+        // save user so that password can be hashed
         return user.save()
         
-      } catch (error) {
-        return 'res.status(400)'
+      } catch {
+        next() 
       }
     })(req, res, next)
   }

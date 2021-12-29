@@ -4,6 +4,7 @@ const passport = require('passport')
 const localStrategy = require('passport-local').Strategy
 const UserModel = require('../model/user-model')
 
+// handle sign-ups
 passport.use('signup',
   new localStrategy(
     {
@@ -21,6 +22,7 @@ passport.use('signup',
   )
 )
 
+// handle logins
 passport.use(
 	'login',
 	new localStrategy(
@@ -30,18 +32,19 @@ passport.use(
 		},
 		async (email, password, done) => {
 			try {
+				// find user
 				const user = await UserModel.findOne({ email })
 
 				if (!user) {
 					return done(null, false, { message: 'User not found' })
 				}
-				// console.log(user)
+				// check password
 				const validate = await user.isValidPassword(password)
-				// console.log(validate)
+				
 				if (!validate) {
 					return done(null, false, { message: 'Wrong Password' })
 				}
-
+				// return status
 				return done(null, user, { message: 'Logged in Successfully' })
 			} catch (error) {
 				return done(error)
@@ -50,6 +53,7 @@ passport.use(
 	)
 )
 
+// handle password changes
 passport.use(
 	'change-password',
 	new localStrategy(
@@ -59,14 +63,15 @@ passport.use(
 		},
 		async (email, password, done) => {
 			try {
+				// find user
 				const user = await UserModel.findOne({ email })
 
 				if (!user) {
 					return done(null, false, { message: 'User not found' })
 				}
-				// console.log(user)
+				// check password
 				const validate = await user.isValidPassword(password)
-				// console.log(validate)
+				
 				if (!validate) {
 					return done(null, false, { message: 'Wrong Password' })
 				}
@@ -80,7 +85,7 @@ passport.use(
 )
 
 
-
+// strategy constructor for authentication
 const JWTstrategy = require('passport-jwt').Strategy
 const ExtractJWT = require('passport-jwt').ExtractJwt
 
