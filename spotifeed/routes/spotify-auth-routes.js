@@ -11,7 +11,7 @@ const axios = require('axios')
 const router = express.Router()
 
 // identify production vs. development API URLs
-const production = 0;
+const production = 1;
 const apiUrl = production ? 'https://pure-harbor-08948.herokuapp.com' : 'http://localhost:3000'
 
 // client specific information
