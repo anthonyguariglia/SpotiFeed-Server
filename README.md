@@ -13,14 +13,14 @@ The end result is an app that lets users stay up-to-date with their favorite art
 
 ### Entity Relationship Diagram (ERD)
 
-![Entity Relationship Diagram](./../spotifeed/public/ERD.png)
+![Entity Relationship Diagram](https://i.imgur.com/cFEJg7f.png)
 
 ### Entity Explanation
 
 Each user is able to create an account with SpotiFeed. That account is not tied to their Spotify account until the user logs into Spotify, and none of the user's Spotify information is permanently saved to their SpotiFeed account. The SpotiFeed account simply stores the user's email, password, and login authentication token.
 
 Once logged into a Spotify account, the user model contains the artists they follow, and allows them to add those artists' recently uploaded tracks to playlists they can create. They can make as many as they want, and give them unique names, populate them with any track on their feed, and remove any track they no longer want. Any playlist can also be deleted by clicking on the garbage icon next to the name of the playlist.
-
+AddA
 In order to populate the feed, every artist that the user follows is pulled from their Spotify account, and those Spotify artist IDs are then used to pull the artist's most recent albums and singles. This is done for all of the artists the user follows to obtain all recent upload data. That data is then sorted in descending chronological order based on release date and displayed on the screen. The albums are populated with all relevant information to provide the user with the album name, artist(s) name(s), number of days since release, and album artwork. 
 
 Artist models are also created for each artist, containing the artist's name and Spotify ID, as well as their recent albums. 
