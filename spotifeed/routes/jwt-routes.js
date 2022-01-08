@@ -19,18 +19,27 @@ router
 // on sign up
 router.post('/signup',
   async (req, res, next) => {
-    // check if passwords match
-    if (!req.body.confirm_password || req.body.password !== req.body.confirm_password) {
-      res.status(400).json('passwords do not match')
-    } else {
-      next()
-    }
+    // check if  email exists already
+    User.find({ email: req.body.email })
+      .then((user) => {
+        if (user[0]) {
+          // if user exists, report that back to front end
+          res.status(400).json('User already exists')
+        } else if (!req.body.confirm_password || req.body.password !== req.body.confirm_password) {
+					// check if passwords match
+					res.status(400).json('Passwords do not match')
+				} else {
+          next()
+        }
+      })
+    
+    
 	},
   // authenticate login info
 	passport.authenticate('signup', { session: false }),
 	async (req, res, next) => {
     try{ 
-      
+      console.log('request: ', req)
       // report status upon successful authentication
       res.json({
         message: 'Signup successful',
